@@ -69,39 +69,12 @@ public class LoanServiceImpl implements ILoanService {
     @Override
     public LoanDto fetchLoan ( @RequestParam String loanNumber){
         Loan loan = loanRepository.findByLoanNumber(loanNumber);
+        if (loan == null) {
+            throw new LoanNotFoundException("Loan not found for loan number: " + loanNumber);
+        }
         return LoanMapper.mapToLoanDto(loan,new LoanDto());
     }
 
-
-//    public BigDecimal repayLoan(@RequestParam BigDecimal repaymentAmount, String loanNumber) {
-    // public BigDecimal repayLoan(RepayLoanDto repayLoanDto) {
-
-    //     BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
-    //     String loanNumber = repayLoanDto.getLoanNumber();
-
-    //     Loan loan = loanRepository.findByLoanNumber(loanNumber);
-
-    //     if (loan == null) {
-    //         throw new RuntimeException("Loan not found");
-    //     }
-
-    //     BigDecimal currentAmountPaid = loan.getAmountPaid() != null ? loan.getAmountPaid() : BigDecimal.ZERO;
-    //     BigDecimal outstandingAmount = loan.getOutstandingAmount() != null ? loan.getOutstandingAmount() : loan.getTotalLoan();
-
-    //     if (repaymentAmount.compareTo(outstandingAmount) > 0) {
-    //         throw new RuntimeException("Repayment amount exceeds outstanding loan balance");
-    //     }
-
-    //     BigDecimal newAmountPaid = currentAmountPaid.add(repaymentAmount);
-    //     BigDecimal newOutstandingAmount = outstandingAmount.subtract(repaymentAmount);
-
-    //     loan.setAmountPaid(newAmountPaid);
-    //     loan.setOutstandingAmount(newOutstandingAmount);
-
-    //     loanRepository.save(loan);
-
-    //     return newOutstandingAmount;
-    // }
 
     @Override
 @Transactional

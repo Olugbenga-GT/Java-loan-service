@@ -32,13 +32,13 @@ public class LoanController {
     @GetMapping("fetch-all-loans")
     public ResponseEntity<List<LoanDto>> fetchLoans(@RequestParam String mobileNumber) {
         List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
-        return ResponseEntity.status(HttpStatus.FOUND).body(loanDtos);
+        return ResponseEntity.status(HttpStatus.OK).body(loanDtos);
     }
 
     @GetMapping("fetch-loan")
     public  ResponseEntity<LoanDto> fetchLoan(@RequestParam String loanNumber){
         LoanDto loanDto = loanService.fetchLoan(loanNumber);
-        return  ResponseEntity.status(HttpStatus.FOUND).body(loanDto);
+        return  ResponseEntity.status(HttpStatus.OK).body(loanDto);
     }
 
     @DeleteMapping("delete")
