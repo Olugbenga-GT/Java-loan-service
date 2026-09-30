@@ -56,8 +56,8 @@ public class LoanController {
     }
 
     @PutMapping("repay-loan")
-    public ResponseEntity<BigDecimal> repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
-        BigDecimal outstandingAmount = loanService.repayLoan(repayLoanDto);
+    public ResponseEntity<LoanDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
+        LoanDto outstandingAmount = loanService.repayLoan(repayLoanDto);
         return ResponseEntity.ok(outstandingAmount);
     }
 

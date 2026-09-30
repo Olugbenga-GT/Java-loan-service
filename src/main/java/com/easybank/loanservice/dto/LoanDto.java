@@ -15,5 +15,9 @@ public class LoanDto {
 
     private String loanNumber;
 
+    private String status;
 
+    private String message;
 }
+
+
