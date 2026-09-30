@@ -3,6 +3,7 @@ package com.easybank.loanservice.controller;
 import com.easybank.loanservice.constants.LoanConstants;
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
+import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.dto.ResponseDto;
 import com.easybank.loanservice.service.ILoanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,8 @@ public class LoanController {
     }
 
     @PutMapping("repay-loan")
-    public ResponseEntity<LoanDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
-        LoanDto outstandingAmount = loanService.repayLoan(repayLoanDto);
+    public ResponseEntity<repayResponseDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
+        repayResponseDto outstandingAmount = loanService.repayLoan(repayLoanDto);
         return ResponseEntity.ok(outstandingAmount);
     }
 

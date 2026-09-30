@@ -3,6 +3,7 @@ package com.easybank.loanservice.service.impl;
 
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
+import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.entity.Loan;
 import com.easybank.loanservice.exception.InvalidLoanAmountException;
 import com.easybank.loanservice.exception.LoanNotFoundException;
@@ -78,7 +79,7 @@ public class LoanServiceImpl implements ILoanService {
 
     @Override
 @Transactional
-public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
+public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
 
     BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
     String loanNumber = repayLoanDto.getLoanNumber();
@@ -143,10 +144,11 @@ public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
     Loan savedLoan = loanRepository.save(loan);
 
 
-    LoanDto loanDto = LoanMapper.mapToLoanDto(
-        savedLoan,
-        new LoanDto()
-    );
+    repayResponseDto loanDto = new repayResponseDto();
+    loanDto.setMobileNumber(savedLoan.getMobileNumber());
+    loanDto.setLoanType(savedLoan.getLoanType());
+    loanDto.setLoanAmount(savedLoan.getLoanAmount());
+    loanDto.setLoanNumber(savedLoan.getLoanNumber());
 
 
     if (newOutstandingAmount.compareTo(BigDecimal.ZERO) == 0) {

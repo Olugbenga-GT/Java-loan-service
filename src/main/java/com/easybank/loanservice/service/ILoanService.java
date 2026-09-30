@@ -2,6 +2,7 @@ package com.easybank.loanservice.service;
 
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
+import com.easybank.loanservice.dto.repayResponseDto;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
@@ -13,6 +14,6 @@ public interface ILoanService {
     boolean deleteLoan(String loanNumber);
     LoanDto fetchLoan(String loanNumber);
     @Transactional
-    LoanDto repayLoan(RepayLoanDto repayLoanDto);
+    repayResponseDto repayLoan(RepayLoanDto repayLoanDto);
 //    BigDecimal repayLoan(BigDecimal repaymentAmount, String loanNumber);
 }
