@@ -4,6 +4,8 @@ package com.easybank.loanservice.service.impl;
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
 import com.easybank.loanservice.entity.Loan;
+import com.easybank.loanservice.exception.InvalidLoanAmountException;
+import com.easybank.loanservice.exception.LoanNotFoundException;
 import com.easybank.loanservice.mapper.LoanMapper;
 import com.easybank.loanservice.repository.LoanRepository;
 import com.easybank.loanservice.service.ILoanService;
