@@ -7,6 +7,7 @@ import com.easybank.loanservice.entity.Loan;
 import com.easybank.loanservice.mapper.LoanMapper;
 import com.easybank.loanservice.repository.LoanRepository;
 import com.easybank.loanservice.service.ILoanService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class LoanServiceImpl implements ILoanService {
     private String generateLoanNumber() {
         long randomLoanNumber = 10000 + new Random().nextInt(9000);
         return "easyloan-" + randomLoanNumber;
-    }
+    } 
 
     /**
      * @param mobileNumber - Input Mobile Number
@@ -69,38 +70,133 @@ public class LoanServiceImpl implements ILoanService {
         return LoanMapper.mapToLoanDto(loan,new LoanDto());
     }
 
-    @Override
+
 //    public BigDecimal repayLoan(@RequestParam BigDecimal repaymentAmount, String loanNumber) {
-    public BigDecimal repayLoan(RepayLoanDto repayLoanDto) {
+    // public BigDecimal repayLoan(RepayLoanDto repayLoanDto) {
 
-        BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
-        String loanNumber = repayLoanDto.getLoanNumber();
+    //     BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
+    //     String loanNumber = repayLoanDto.getLoanNumber();
 
-        Loan loan = loanRepository.findByLoanNumber(loanNumber);
+    //     Loan loan = loanRepository.findByLoanNumber(loanNumber);
 
-        if (loan == null) {
-            throw new RuntimeException("Loan not found");
-        }
+    //     if (loan == null) {
+    //         throw new RuntimeException("Loan not found");
+    //     }
 
-        BigDecimal currentAmountPaid = loan.getAmountPaid() != null ? loan.getAmountPaid() : BigDecimal.ZERO;
-        BigDecimal outstandingAmount = loan.getOutstandingAmount() != null ? loan.getOutstandingAmount() : loan.getTotalLoan();
+    //     BigDecimal currentAmountPaid = loan.getAmountPaid() != null ? loan.getAmountPaid() : BigDecimal.ZERO;
+    //     BigDecimal outstandingAmount = loan.getOutstandingAmount() != null ? loan.getOutstandingAmount() : loan.getTotalLoan();
 
-        if (repaymentAmount.compareTo(outstandingAmount) > 0) {
-            throw new RuntimeException("Repayment amount exceeds outstanding loan balance");
-        }
+    //     if (repaymentAmount.compareTo(outstandingAmount) > 0) {
+    //         throw new RuntimeException("Repayment amount exceeds outstanding loan balance");
+    //     }
 
-        BigDecimal newAmountPaid = currentAmountPaid.add(repaymentAmount);
-        BigDecimal newOutstandingAmount = outstandingAmount.subtract(repaymentAmount);
+    //     BigDecimal newAmountPaid = currentAmountPaid.add(repaymentAmount);
+    //     BigDecimal newOutstandingAmount = outstandingAmount.subtract(repaymentAmount);
 
-        loan.setAmountPaid(newAmountPaid);
-        loan.setOutstandingAmount(newOutstandingAmount);
+    //     loan.setAmountPaid(newAmountPaid);
+    //     loan.setOutstandingAmount(newOutstandingAmount);
 
-        loanRepository.save(loan);
+    //     loanRepository.save(loan);
 
-        return newOutstandingAmount;
+    //     return newOutstandingAmount;
+    // }
+
+    @Override
+@Transactional
+public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
+
+    BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
+    String loanNumber = repayLoanDto.getLoanNumber();
+
+
+    Loan loan = loanRepository.findByLoanNumber(loanNumber);
+
+    if (loan == null) {
+        throw new LoanNotFoundException(
+            "Loan not found for loan number: " + loanNumber
+        );
     }
 
-    ;
+
+    BigDecimal currentAmountPaid =
+        loan.getAmountPaid() != null
+            ? loan.getAmountPaid()
+            : BigDecimal.ZERO;
+
+    BigDecimal outstandingAmount =
+        loan.getOutstandingAmount() != null
+            ? loan.getOutstandingAmount()
+            : loan.getTotalLoan();
+
+
+    if (outstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
+        throw new InvalidLoanAmountException(
+            "Loan " + loanNumber + " has already been cleared"
+        );
+    }
+
+
+    if (repaymentAmount == null ||
+        repaymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
+
+        throw new InvalidLoanAmountException(
+            "Repayment amount must be greater than zero"
+        );
+    }
+
+
+    if (repaymentAmount.compareTo(outstandingAmount) > 0) {
+        throw new InvalidLoanAmountException(
+            "Repayment amount (" + repaymentAmount +
+            ") exceeds outstanding balance (" +
+            outstandingAmount + ")"
+        );
+    }
+
+
+    BigDecimal newAmountPaid =
+        currentAmountPaid.add(repaymentAmount);
+
+    BigDecimal newOutstandingAmount =
+        outstandingAmount.subtract(repaymentAmount);
+
+
+    loan.setAmountPaid(newAmountPaid);
+    loan.setOutstandingAmount(newOutstandingAmount);
+
+
+    Loan savedLoan = loanRepository.save(loan);
+
+
+    LoanDto loanDto = LoanMapper.mapToLoanDto(
+        savedLoan,
+        new LoanDto()
+    );
+
+
+    if (newOutstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
+
+        loanDto.setStatus("CLEARED");
+
+        loanDto.setMessage(
+            "Payment of " + repaymentAmount +
+            " received successfully. Loan " +
+            loanNumber + " is now fully CLEARED!"
+        );
+
+    } else {
+
+        loanDto.setStatus("ACTIVE");
+
+        loanDto.setMessage(
+            "Payment of " + repaymentAmount +
+            " received successfully. Remaining balance: " +
+            newOutstandingAmount
+        );
+    }
+
+    return loanDto;
+};
 
 
     /**
@@ -109,10 +205,10 @@ public class LoanServiceImpl implements ILoanService {
      */
     @Override
     public boolean deleteLoan(String loanNumber) {
-        Loan loan = loanRepository.findByLoanNumber(loanNumber);
+        Loan loan = loanRepository.findByLoanNumber (loanNumber);
         if(loan != null){
             loanRepository.deleteByLoanNumber(loanNumber);
-            return true;
+            return true; 
         }
         return false;
     }
