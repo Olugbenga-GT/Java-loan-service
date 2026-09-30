@@ -15,6 +15,10 @@ public class repayResponseDto {
 
     private String loanNumber;
 
+    private BigDecimal amountPaid;
+
+    private BigDecimal outstandingAmount;
+
     private String status;
 
     private String message;

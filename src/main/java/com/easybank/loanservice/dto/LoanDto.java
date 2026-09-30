@@ -15,6 +15,10 @@ public class LoanDto {
 
     private String loanNumber;
 
+    private BigDecimal amountPaid;
+
+    private BigDecimal outstandingAmount;
+
 }
 
 
