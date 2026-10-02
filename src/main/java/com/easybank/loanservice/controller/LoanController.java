@@ -3,6 +3,7 @@ package com.easybank.loanservice.controller;
 import com.easybank.loanservice.constants.LoanConstants;
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
+import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.dto.ResponseDto;
 import com.easybank.loanservice.service.ILoanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,14 @@ public class LoanController {
 
     @GetMapping("fetch-all-loans")
     public ResponseEntity<List<LoanDto>> fetchLoans(@RequestParam String mobileNumber) {
-        List<LoanDto> loans = loanService.fetchLoans(mobileNumber);
-        return ResponseEntity.status(HttpStatus.OK).body(loans);
+        List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(loanDtos);
     }
 
     @GetMapping("fetch-loan")
     public  ResponseEntity<LoanDto> fetchLoan(@RequestParam String loanNumber){
-        LoanDto loan = loanService.fetchLoan(loanNumber);
-        return  ResponseEntity.status(HttpStatus.OK).body(loan);
+        LoanDto loanDto = loanService.fetchLoan(loanNumber);
+        return  ResponseEntity.status(HttpStatus.OK).body(loanDto);
     }
 
     @DeleteMapping("delete")
@@ -58,8 +59,7 @@ public class LoanController {
     @PutMapping("repay-loan")
     public ResponseEntity<repayResponseDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
         repayResponseDto outstandingAmount = loanService.repayLoan(repayLoanDto);
-
-        return  ResponseEntity.status(HttpStatus.OK).body(outstandingAmount);
+        return ResponseEntity.ok(outstandingAmount);
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class LoanDto {
+public class repayResponseDto {
 
     private String mobileNumber;
 
@@ -19,6 +19,9 @@ public class LoanDto {
 
     private BigDecimal outstandingAmount;
 
+    private String status;
+
+    private String message;
 }
 
 

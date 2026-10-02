@@ -3,6 +3,7 @@ package com.easybank.loanservice.service.impl;
 
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
+import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.entity.Loan;
 import com.easybank.loanservice.exception.InvalidLoanAmountException;
 import com.easybank.loanservice.exception.LoanNotFoundException;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Random;
 
 @Service
+@Slf4j
 public class LoanServiceImpl implements ILoanService {
 
     @Autowired
@@ -68,43 +70,16 @@ public class LoanServiceImpl implements ILoanService {
     @Override
     public LoanDto fetchLoan ( @RequestParam String loanNumber){
         Loan loan = loanRepository.findByLoanNumber(loanNumber);
+        if (loan == null) {
+            throw new LoanNotFoundException("Loan not found for loan number: " + loanNumber);
+        }
         return LoanMapper.mapToLoanDto(loan,new LoanDto());
     }
 
 
-//    public BigDecimal repayLoan(@RequestParam BigDecimal repaymentAmount, String loanNumber) {
-    // public BigDecimal repayLoan(RepayLoanDto repayLoanDto) {
-
-    //     BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
-    //     String loanNumber = repayLoanDto.getLoanNumber();
-
-    //     Loan loan = loanRepository.findByLoanNumber(loanNumber);
-
-    //     if (loan == null) {
-    //         throw new RuntimeException("Loan not found");
-    //     }
-
-    //     BigDecimal currentAmountPaid = loan.getAmountPaid() != null ? loan.getAmountPaid() : BigDecimal.ZERO;
-    //     BigDecimal outstandingAmount = loan.getOutstandingAmount() != null ? loan.getOutstandingAmount() : loan.getTotalLoan();
-
-    //     if (repaymentAmount.compareTo(outstandingAmount) > 0) {
-    //         throw new RuntimeException("Repayment amount exceeds outstanding loan balance");
-    //     }
-
-    //     BigDecimal newAmountPaid = currentAmountPaid.add(repaymentAmount);
-    //     BigDecimal newOutstandingAmount = outstandingAmount.subtract(repaymentAmount);
-
-    //     loan.setAmountPaid(newAmountPaid);
-    //     loan.setOutstandingAmount(newOutstandingAmount);
-
-    //     loanRepository.save(loan);
-
-    //     return newOutstandingAmount;
-    // }
-
     @Override
 @Transactional
-public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
+public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
 
     BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
     String loanNumber = repayLoanDto.getLoanNumber();
@@ -169,17 +144,17 @@ public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
     Loan savedLoan = loanRepository.save(loan);
 
 
-    repayResponseDto repayResponseDto = LoanMapper.mapToRepayResponseDto(
+    repayResponseDto loanDto = LoanMapper.mapToRepayResponseDto(
         savedLoan,
-        new LoanDto()
+        new repayResponseDto()
     );
 
 
     if (newOutstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
 
-        repayResponseDto.setStatus("CLEARED");
+        loanDto.setStatus("CLEARED");
 
-        repayResponseDto.setMessage(
+        loanDto.setMessage(
             "Payment of " + repaymentAmount +
             " received successfully. Loan " +
             loanNumber + " is now fully CLEARED!"
@@ -187,16 +162,16 @@ public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
 
     } else {
 
-        repayResponseDto.setStatus("ACTIVE");
+        loanDto.setStatus("ACTIVE");
 
-        repayResponseDto.setMessage(
+        loanDto.setMessage(
             "Payment of " + repaymentAmount +
             " received successfully. Remaining balance: " +
             newOutstandingAmount
         );
     }
 
-    return repayResponseDto;
+    return loanDto;
 };
 
 
