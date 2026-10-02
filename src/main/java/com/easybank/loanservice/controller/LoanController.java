@@ -31,14 +31,14 @@ public class LoanController {
 
     @GetMapping("fetch-all-loans")
     public ResponseEntity<List<LoanDto>> fetchLoans(@RequestParam String mobileNumber) {
-        List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
-        return ResponseEntity.status(HttpStatus.FOUND).body(loanDtos);
+        List<LoanDto> loans = loanService.fetchLoans(mobileNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(loans);
     }
 
     @GetMapping("fetch-loan")
     public  ResponseEntity<LoanDto> fetchLoan(@RequestParam String loanNumber){
-        LoanDto loanDto = loanService.fetchLoan(loanNumber);
-        return  ResponseEntity.status(HttpStatus.FOUND).body(loanDto);
+        LoanDto loan = loanService.fetchLoan(loanNumber);
+        return  ResponseEntity.status(HttpStatus.OK).body(loan);
     }
 
     @DeleteMapping("delete")
@@ -56,9 +56,10 @@ public class LoanController {
     }
 
     @PutMapping("repay-loan")
-    public ResponseEntity<LoanDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
-        LoanDto outstandingAmount = loanService.repayLoan(repayLoanDto);
-        return ResponseEntity.ok(outstandingAmount);
+    public ResponseEntity<repayResponseDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
+        repayResponseDto outstandingAmount = loanService.repayLoan(repayLoanDto);
+
+        return  ResponseEntity.status(HttpStatus.OK).body(outstandingAmount);
     }
 
 }

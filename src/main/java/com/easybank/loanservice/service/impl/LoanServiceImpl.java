@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Random;
 
 @Service
-@Slf4j
 public class LoanServiceImpl implements ILoanService {
 
     @Autowired
@@ -170,7 +169,7 @@ public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
     Loan savedLoan = loanRepository.save(loan);
 
 
-    LoanDto loanDto = LoanMapper.mapToLoanDto(
+    repayResponseDto repayResponseDto = LoanMapper.mapToRepayResponseDto(
         savedLoan,
         new LoanDto()
     );
@@ -178,9 +177,9 @@ public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
 
     if (newOutstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
 
-        loanDto.setStatus("CLEARED");
+        repayResponseDto.setStatus("CLEARED");
 
-        loanDto.setMessage(
+        repayResponseDto.setMessage(
             "Payment of " + repaymentAmount +
             " received successfully. Loan " +
             loanNumber + " is now fully CLEARED!"
@@ -188,16 +187,16 @@ public LoanDto repayLoan(RepayLoanDto repayLoanDto) {
 
     } else {
 
-        loanDto.setStatus("ACTIVE");
+        repayResponseDto.setStatus("ACTIVE");
 
-        loanDto.setMessage(
+        repayResponseDto.setMessage(
             "Payment of " + repaymentAmount +
             " received successfully. Remaining balance: " +
             newOutstandingAmount
         );
     }
 
-    return loanDto;
+    return repayResponseDto;
 };
 
 
