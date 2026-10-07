@@ -145,11 +145,10 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
     Loan savedLoan = loanRepository.save(loan);
 
 
-    repayResponseDto loanDto = new repayResponseDto();
-    loanDto.setMobileNumber(savedLoan.getMobileNumber());
-    loanDto.setLoanType(savedLoan.getLoanType());
-    loanDto.setLoanAmount(savedLoan.getLoanAmount());
-    loanDto.setLoanNumber(savedLoan.getLoanNumber());
+    repayResponseDto loanDto = LoanMapper.mapToRepayResponseDto(
+        savedLoan,
+        new repayResponseDto()
+    );
 
 
     if (newOutstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
