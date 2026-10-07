@@ -7,6 +7,7 @@ import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.entity.Loan;
 import com.easybank.loanservice.exception.InvalidLoanAmountException;
 import com.easybank.loanservice.exception.LoanNotFoundException;
+import com.easybank.loanservice.exception.OutstandingBalanceException;
 import com.easybank.loanservice.mapper.LoanMapper;
 import com.easybank.loanservice.repository.LoanRepository;
 import com.easybank.loanservice.service.ILoanService;
@@ -181,11 +182,15 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
      * @return boolean indicating if the delete of Account details is successful or not
      */
     @Override
+
     public boolean deleteLoan(String loanNumber) {
         Loan loan = loanRepository.findByLoanNumber (loanNumber);
-        if(loan != null){
+        if( loan != null && loan.getOutstandingAmount().compareTo(BigDecimal.ZERO) > 0){
+            throw new OutstandingBalanceException("You have outstanding balance of " + loan.getOutstandingAmount());
+        };
+        if(loan != null ){
             loanRepository.deleteByLoanNumber(loanNumber);
-            return true; 
+            return true;
         }
         return false;
     }

@@ -6,6 +6,7 @@ import com.easybank.loanservice.dto.RepayLoanDto;
 import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.dto.ResponseDto;
 import com.easybank.loanservice.service.ILoanService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/loan/")
+
+@Tag(
+        name ="CRUD REST APIs for Loan service for FinApp application ",
+        description = "Rest APIs to create, repay, fetch and delete loans for FinApp banking app."
+)
 public class LoanController {
 
     @Autowired
