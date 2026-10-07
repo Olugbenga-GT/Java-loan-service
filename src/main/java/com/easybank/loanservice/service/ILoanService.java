@@ -15,5 +15,4 @@ public interface ILoanService {
     LoanDto fetchLoan(String loanNumber);
     @Transactional
     repayResponseDto repayLoan(RepayLoanDto repayLoanDto);
-//    BigDecimal repayLoan(BigDecimal repaymentAmount, String loanNumber);
 }

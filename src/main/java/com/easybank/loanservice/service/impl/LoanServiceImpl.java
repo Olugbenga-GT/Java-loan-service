@@ -1,6 +1,5 @@
 package com.easybank.loanservice.service.impl;
 
-
 import com.easybank.loanservice.dto.LoanDto;
 import com.easybank.loanservice.dto.RepayLoanDto;
 import com.easybank.loanservice.dto.repayResponseDto;
@@ -32,10 +31,6 @@ public class LoanServiceImpl implements ILoanService {
     @Autowired
     private LoanRepository loanRepository;
 
-
-    /**
-     * @param loanDto - CustomerDto Object
-     */
     @Override
     public void createLoan(LoanDto loanDto) {
         Loan newLoan = LoanMapper.mapToLoan(loanDto, new Loan());
@@ -44,16 +39,11 @@ public class LoanServiceImpl implements ILoanService {
         loanRepository.save(savedLoan);
     }
 
-
     private String generateLoanNumber() {
         long randomLoanNumber = 10000 + new Random().nextInt(9000);
         return "easyloan-" + randomLoanNumber;
     } 
 
-    /**
-     * @param mobileNumber - Input Mobile Number
-     * @return Loans based on a given mobileNumber
-     */
     @Override
     public List<LoanDto> fetchLoans(String mobileNumber) {
         List<Loan> loans = loanRepository.findByMobileNumber(mobileNumber);
@@ -77,14 +67,12 @@ public class LoanServiceImpl implements ILoanService {
         return LoanMapper.mapToLoanDto(loan,new LoanDto());
     }
 
-
     @Override
 @Transactional
 public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
 
     BigDecimal repaymentAmount = repayLoanDto.getRepaymentAmount();
     String loanNumber = repayLoanDto.getLoanNumber();
-
 
     Loan loan = loanRepository.findByLoanNumber(loanNumber);
 
@@ -93,7 +81,6 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
             "Loan not found for loan number: " + loanNumber
         );
     }
-
 
     BigDecimal currentAmountPaid =
         loan.getAmountPaid() != null
@@ -105,13 +92,11 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
             ? loan.getOutstandingAmount()
             : loan.getTotalLoan();
 
-
     if (outstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
         throw new InvalidLoanAmountException(
             "Loan " + loanNumber + " has already been cleared"
         );
     }
-
 
     if (repaymentAmount == null ||
         repaymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -121,7 +106,6 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
         );
     }
 
-
     if (repaymentAmount.compareTo(outstandingAmount) > 0) {
         throw new InvalidLoanAmountException(
             "Repayment amount (" + repaymentAmount +
@@ -130,26 +114,21 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
         );
     }
 
-
     BigDecimal newAmountPaid =
         currentAmountPaid.add(repaymentAmount);
 
     BigDecimal newOutstandingAmount =
         outstandingAmount.subtract(repaymentAmount);
 
-
     loan.setAmountPaid(newAmountPaid);
     loan.setOutstandingAmount(newOutstandingAmount);
 
-
     Loan savedLoan = loanRepository.save(loan);
-
 
     repayResponseDto loanDto = LoanMapper.mapToRepayResponseDto(
         savedLoan,
         new repayResponseDto()
     );
-
 
     if (newOutstandingAmount.compareTo(BigDecimal.ZERO) == 0) {
 
@@ -175,11 +154,6 @@ public repayResponseDto repayLoan(RepayLoanDto repayLoanDto) {
     return loanDto;
 };
 
-
-    /**
-     * @param loanNumber - Input Mobile Number
-     * @return boolean indicating if the delete of Account details is successful or not
-     */
     @Override
 
     public boolean deleteLoan(String loanNumber) {
