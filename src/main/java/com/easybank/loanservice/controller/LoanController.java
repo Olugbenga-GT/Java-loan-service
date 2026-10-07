@@ -7,6 +7,7 @@ import com.easybank.loanservice.dto.repayResponseDto;
 import com.easybank.loanservice.dto.ResponseDto;
 import com.easybank.loanservice.service.ILoanService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,11 @@ public class LoanController {
     @Autowired
     private ILoanService loanService;
 
+ @Operation(
+            summary = "Create Loan REST API",
+            description = "REST API to create new Loan inside FinApp"
+    )
+
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createLoan(@RequestBody LoanDto loanDto) {
         loanService.createLoan(loanDto);
@@ -36,18 +42,30 @@ public class LoanController {
                 .body(new ResponseDto(LoanConstants.MESSAGE_201));
     }
 
+    @Operation(
+            summary = "Fetch All Loans REST API",
+            description = "REST API to fetch all loans for a given mobile number"
+    )
     @GetMapping("fetch-all-loans")
     public ResponseEntity<List<LoanDto>> fetchLoans(@RequestParam String mobileNumber) {
         List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK).body(loanDtos);
     }
 
+    @Operation(
+            summary = "Fetch Loan REST API",
+            description = "REST API to fetch a specific loan by its number"
+    )
     @GetMapping("fetch-loan")
     public  ResponseEntity<LoanDto> fetchLoan(@RequestParam String loanNumber){
         LoanDto loanDto = loanService.fetchLoan(loanNumber);
         return  ResponseEntity.status(HttpStatus.OK).body(loanDto);
     }
 
+    @Operation(
+            summary = "Delete Loan REST API",
+            description = "REST API to delete a specific loan by its number"
+    )
     @DeleteMapping("delete")
     public ResponseEntity<ResponseDto> deleteLoan(@RequestParam String loanNumber) {
         boolean isDeleted = loanService.deleteLoan(loanNumber);
@@ -62,6 +80,10 @@ public class LoanController {
         }
     }
 
+    @Operation(
+            summary = "Repay Loan REST API",
+            description = "REST API to repay a specific loan by its number"
+    )
     @PutMapping("repay-loan")
     public ResponseEntity<repayResponseDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
         repayResponseDto outstandingAmount = loanService.repayLoan(repayLoanDto);
