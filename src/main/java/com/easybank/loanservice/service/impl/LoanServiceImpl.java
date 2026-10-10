@@ -35,8 +35,7 @@ public class LoanServiceImpl implements ILoanService {
     public void createLoan(LoanDto loanDto) {
         Loan newLoan = LoanMapper.mapToLoan(loanDto, new Loan());
         newLoan.setLoanNumber(generateLoanNumber());
-        Loan savedLoan = loanRepository.save(newLoan);
-        loanRepository.save(savedLoan);
+        loanRepository.save(newLoan);
     }
 
     private String generateLoanNumber() {

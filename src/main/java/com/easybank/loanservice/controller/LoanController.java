@@ -1,10 +1,7 @@
 package com.easybank.loanservice.controller;
 
 import com.easybank.loanservice.constants.LoanConstants;
-import com.easybank.loanservice.dto.LoanDto;
-import com.easybank.loanservice.dto.RepayLoanDto;
-import com.easybank.loanservice.dto.repayResponseDto;
-import com.easybank.loanservice.dto.ResponseDto;
+import com.easybank.loanservice.dto.*;
 import com.easybank.loanservice.service.ILoanService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,9 +56,12 @@ public class LoanController {
             description = "REST API to fetch all loans for a given mobile number"
     )
     @GetMapping("fetch-all-loans")
-    public ResponseEntity<List<LoanDto>> fetchLoans(@Parameter(description = "Customer mobile number", example = "08012345678") @RequestParam String mobileNumber) {
-        List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
-        return ResponseEntity.status(HttpStatus.OK).body(loanDtos);
+    public ResponseEntity<LoanDetailsDto> fetchLoans(@Parameter(description = "Customer mobile number", example = "08012345678") @RequestParam String mobileNumber) {
+
+     List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
+        LoanDetailsDto loanDetails = new LoanDetailsDto();
+        loanDetails.setLoanDtos(loanDtos);
+        return ResponseEntity.status(HttpStatus.OK).body(loanDetails);
     }
 
     @Operation(
