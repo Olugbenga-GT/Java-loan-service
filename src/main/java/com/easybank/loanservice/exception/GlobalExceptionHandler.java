@@ -1,6 +1,8 @@
 package com.easybank.loanservice.exception;
 
 import com.easybank.loanservice.dto.ErrorResponseDto;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -32,6 +34,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             String validationMsg = error.getDefaultMessage();
             validationErrors.put(fieldName, validationMsg);
         });
+        return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(
+            ConstraintViolationException ex) {
+        Map<String, String> validationErrors = new HashMap<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            String fieldName = violation.getPropertyPath().toString();
+            // Extract just the parameter name from the path (e.g. "fetchLoans.mobileNumber" -> "mobileNumber")
+            if (fieldName.contains(".")) {
+                fieldName = fieldName.substring(fieldName.lastIndexOf('.') + 1);
+            }
+            validationErrors.put(fieldName, violation.getMessage());
+        }
         return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
 

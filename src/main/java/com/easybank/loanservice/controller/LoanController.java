@@ -8,9 +8,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -19,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/loan/")
-
+@Validated
 @Tag(
         name ="CRUD REST APIs for Loan service for FinApp application ",
         description = "Rest APIs to create, repay, fetch and delete loans for FinApp banking app."
@@ -44,7 +48,7 @@ public class LoanController {
                     """))
     )
     @PostMapping("/create")
-    public ResponseEntity<ResponseDto> createLoan(@RequestBody LoanDto loanDto) {
+    public ResponseEntity<ResponseDto> createLoan(@Valid @RequestBody LoanDto loanDto) {
         loanService.createLoan(loanDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -56,10 +60,15 @@ public class LoanController {
             description = "REST API to fetch all loans for a given mobile number"
     )
     @GetMapping("fetch-all-loans")
-    public ResponseEntity<LoanDetailsDto> fetchLoans(@Parameter(description = "Customer mobile number", example = "08012345678") @RequestParam String mobileNumber) {
+    public ResponseEntity<LoanDetailsDto> fetchLoans(
+            @Parameter(description = "Customer mobile number", example = "08012345678")
+            @RequestParam
+            @NotBlank(message = "Mobile number must not be empty")
+            @Pattern(regexp = "^\\d{10,15}$", message = "Mobile number must be between 10 and 15 digits")
+            String mobileNumber) {
 
      List<LoanDto> loanDtos = loanService.fetchLoans(mobileNumber);
-        LoanDetailsDto loanDetails = new LoanDetailsDto();
+        LoanDetailsDto  loanDetails = new LoanDetailsDto();
         loanDetails.setLoanDtos(loanDtos);
         return ResponseEntity.status(HttpStatus.OK).body(loanDetails);
     }
@@ -69,7 +78,11 @@ public class LoanController {
             description = "REST API to fetch a specific loan by its number"
     )
     @GetMapping("fetch-loan")
-    public  ResponseEntity<LoanDto> fetchLoan(@Parameter(description = "Loan number", example = "1234567890") @RequestParam String loanNumber){
+    public  ResponseEntity<LoanDto> fetchLoan(
+            @Parameter(description = "Loan number", example = "1234567890")
+            @RequestParam
+            @NotBlank(message = "Loan number must not be empty")
+            String loanNumber){
         LoanDto loanDto = loanService.fetchLoan(loanNumber);
         return  ResponseEntity.status(HttpStatus.OK).body(loanDto);
     }
@@ -79,7 +92,11 @@ public class LoanController {
             description = "REST API to delete a specific loan by its number"
     )
     @DeleteMapping("delete")
-    public ResponseEntity<ResponseDto> deleteLoan(@Parameter(description = "Loan number", example = "1234567890") @RequestParam String loanNumber) {
+    public ResponseEntity<ResponseDto> deleteLoan(
+            @Parameter(description = "Loan number", example = "1234567890")
+            @RequestParam
+            @NotBlank(message = "Loan number must not be empty")
+            String loanNumber) {
         boolean isDeleted = loanService.deleteLoan(loanNumber);
         if(isDeleted) {
             return ResponseEntity
@@ -105,7 +122,7 @@ public class LoanController {
                     """))
     )
     @PutMapping("repay-loan")
-    public ResponseEntity<repayResponseDto > repayLoan(@RequestBody  RepayLoanDto repayLoanDto){
+    public ResponseEntity<repayResponseDto > repayLoan(@Valid @RequestBody  RepayLoanDto repayLoanDto){
         repayResponseDto outstandingAmount = loanService.repayLoan(repayLoanDto);
         return ResponseEntity.ok(outstandingAmount);
     }
