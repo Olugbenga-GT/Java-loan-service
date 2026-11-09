@@ -1,0 +1,33 @@
+services:
+  loan-db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: loandb
+      MYSQL_USER: loan
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - loan-db-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  loan-service:
+    image: sirlawdev/loanservice:v1
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://loan-db:3306/loandb
+      SPRING_DATASOURCE_USERNAME: loan
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+    depends_on:
+      loan-db:
+        condition: service_healthy
+
+volumes:
+  loan-db-data:
