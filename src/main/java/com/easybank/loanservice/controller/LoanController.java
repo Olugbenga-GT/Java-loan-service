@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +34,15 @@ public class LoanController {
 
     @Autowired
     private ILoanService loanService;
+
+    @Value("${build.version:unknown}")
+    private String buildVersion;
+
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private LoanContactInfoDto loanContactInfoDto;
 
  @Operation(
             summary = "Create Loan REST API",
@@ -125,6 +136,33 @@ public class LoanController {
     public ResponseEntity<repayResponseDto > repayLoan(@Valid @RequestBody  RepayLoanDto repayLoanDto){
         repayResponseDto outstandingAmount = loanService.repayLoan(repayLoanDto);
         return ResponseEntity.ok(outstandingAmount);
+    }
+
+    @Operation(
+            summary = "Get Build information",
+            description = "Get Build information that is deployed into loan microservice"
+    )
+    @GetMapping("build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+    }
+
+    @Operation(
+            summary = "Get Java version",
+            description = "Get Java version details that is installed into loan microservice"
+    )
+    @GetMapping("java-version")
+    public ResponseEntity<String> getJavaVersion() {
+        return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
+    }
+
+    @Operation(
+            summary = "Get Contact Info",
+            description = "Contact Info details that can be reached out in case of any issues"
+    )
+    @GetMapping("contact-info")
+    public ResponseEntity<LoanContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(loanContactInfoDto);
     }
 
 }
